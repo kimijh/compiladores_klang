@@ -1,0 +1,350 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>KLang Compiler</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 25px;
+            background: #050505;
+            color: #00ff41;
+            font-family: Consolas, "Courier New", monospace;
+        }
+
+        .terminal {
+            max-width: 1100px;
+            margin: auto;
+            border: 1px solid #00ff41;
+            padding: 25px;
+            box-shadow: 0 0 15px rgba(0, 255, 65, 0.15);
+        }
+
+        h1 {
+            text-align: center;
+            letter-spacing: 5px;
+            text-shadow: 0 0 10px #00ff41;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #008f25;
+        }
+
+        .status {
+            border-top: 1px solid #006b1c;
+            border-bottom: 1px solid #006b1c;
+            padding: 12px 0;
+            margin: 25px 0;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 12px;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 300px;
+            resize: vertical;
+            background: #000;
+            color: #00ff41;
+            border: 1px solid #008f25;
+            padding: 18px;
+            font-family: inherit;
+            font-size: 15px;
+            line-height: 1.6;
+            outline: none;
+        }
+
+        textarea:focus {
+            border-color: #00ff41;
+            box-shadow: 0 0 8px rgba(0,255,65,.2);
+        }
+
+        button {
+            background: #001a08;
+            color: #00ff41;
+            border: 1px solid #00ff41;
+            padding: 12px 25px;
+            margin-top: 15px;
+            font-family: inherit;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #00ff41;
+            color: #000;
+        }
+
+        #resultado {
+            margin-top: 30px;
+            padding: 20px;
+            border: 1px solid #006b1c;
+            min-height: 100px;
+            white-space: pre-wrap;
+            overflow-wrap: anywhere;
+        }
+
+        .sucesso {
+            color: #00ff41;
+        }
+
+        .erro {
+            color: #ff4444;
+        }
+
+        .aviso {
+            color: #ffff00;
+        }
+
+        .rodape {
+            margin-top: 30px;
+            color: #006b1c;
+            text-align: center;
+            font-size: 12px;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 10px;
+            }
+
+            .terminal {
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="terminal">
+
+    <h1>KLANG COMPILER</h1>
+
+    <p class="subtitle">
+        [ AMBIENTE DE DESENVOLVIMENTO ]
+    </p>
+
+    <div class="status">
+        STATUS: <span class="sucesso">ONLINE</span>
+        <br>
+        COMPILADOR: KLANG
+        <br>
+        ANALISE: LEXICA + SINTATICA
+    </div>
+
+    
+<div class="exemplos">
+    <p>root@klang:~$ selecionar_exemplo</p>
+
+    <button onclick="carregarExemplo('hello')">[ HELLO WORLD ]</button>
+    <button onclick="carregarExemplo('variaveis')">[ VARIAVEIS ]</button>
+    <button onclick="carregarExemplo('if')">[ IF / ELSE ]</button>
+    <button onclick="carregarExemplo('loops')">[ LOOPS ]</button>
+    <button onclick="carregarExemplo('function')">[ FUNCTION ]</button>
+</div>
+
+<label for="codigo">
+    root@klang:~$ editor codigo.kl
+</label>
+
+
+    <textarea id="codigo" spellcheck="false">PROGRAM teste;
+
+VAR
+    contador : INTEGER;
+
+BEGIN
+    contador := 10;
+END.</textarea>
+
+    <button onclick="analisar()">
+        [ ANALISAR CODIGO ]
+    </button>
+
+    <button onclick="limpar()">
+        [ LIMPAR ]
+    </button>
+
+    <div id="resultado">
+        root@klang:~$ Aguardando comando...
+    </div>
+
+    <div class="rodape">
+        KLANG COMPILER - TERMINAL VERSION
+    </div>
+
+</div>
+
+<script>
+
+
+const exemplos = {
+
+    hello: `PROGRAM Hello;
+BEGIN
+    mensagem := 'Ola, Klang!';
+END.`,
+
+    variaveis: `PROGRAM Variaveis;
+VAR
+    idade, ano: INTEGER;
+    preco: REAL;
+BEGIN
+    idade := 25;
+    ano := 2026;
+    preco := 19.90;
+END.`,
+
+    if: `PROGRAM Condicional;
+VAR
+    nota: INTEGER;
+BEGIN
+    nota := 10;
+
+    IF nota >= 7 THEN
+        resultado := 1;
+    ELSE
+        resultado := 0;
+END.`,
+
+    loops: `PROGRAM Repeticoes;
+VAR
+    i: INTEGER;
+BEGIN
+    i := 1;
+
+    WHILE i <= 10 DO
+        i := i + 1;
+
+    FOR j := 1 TO 5 DO
+        x := j;
+END.`,
+
+    function: `PROGRAM Funcoes;
+
+FUNCTION Dobro(x: INTEGER): INTEGER;
+BEGIN
+    Dobro := x * 2;
+END;
+
+BEGIN
+    resultado := Dobro(10);
+END.`
+};
+
+function carregarExemplo(nome) {
+
+    document.getElementById("codigo").value = exemplos[nome];
+
+    const resultado = document.getElementById("resultado");
+
+    resultado.textContent =
+        "root@klang:~$ Exemplo carregado: " + nome;
+
+    resultado.className = "";
+}
+
+async function analisar() {
+
+    const codigo = document.getElementById("codigo").value;
+    const resultado = document.getElementById("resultado");
+
+    resultado.textContent = "root@klang:~$ Executando análise...";
+
+    try {
+
+        const resposta = await fetch("/analisar", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded"
+            },
+            body: new URLSearchParams({
+                codigo: codigo
+            })
+        });
+
+        if (!resposta.ok) {
+            throw new Error("Erro HTTP: " + resposta.status);
+        }
+
+        const dados = await resposta.json();
+
+        let texto = "";
+
+        texto += "root@klang:~$ ANALISE CONCLUIDA\n\n";
+
+        if (dados.sucesso) {
+            texto += "STATUS: BUILD SUCCESS\n\n";
+        } else {
+            texto += "STATUS: BUILD FAILED\n\n";
+        }
+
+        texto += "=== ERROS LEXICOS ===\n";
+
+        if (dados.errosLexicos.length === 0) {
+            texto += "Nenhum erro lexico encontrado.\n";
+        } else {
+            dados.errosLexicos.forEach(erro => {
+                texto += "[ERRO] " + erro + "\n";
+            });
+        }
+
+        texto += "\n=== ERROS SINTATICOS ===\n";
+
+        if (dados.errosSintaticos.length === 0) {
+            texto += "Nenhum erro sintatico encontrado.\n";
+        } else {
+            dados.errosSintaticos.forEach(erro => {
+                texto += "[ERRO] " + erro + "\n";
+            });
+        }
+
+        texto += "\n=== WARNINGS ===\n";
+
+        if (dados.warnings.length === 0) {
+            texto += "Nenhum warning encontrado.\n";
+        } else {
+            dados.warnings.forEach(aviso => {
+                texto += "[WARNING] " + aviso + "\n";
+            });
+        }
+
+        resultado.textContent = texto;
+
+        resultado.className = dados.sucesso ? "sucesso" : "erro";
+
+    } catch (erro) {
+
+        resultado.textContent =
+            "ERRO AO CONECTAR COM O COMPILADOR:\n" + erro.message;
+
+        resultado.className = "erro";
+    }
+}
+
+function limpar() {
+
+    document.getElementById("codigo").value = "";
+
+    const resultado = document.getElementById("resultado");
+
+    resultado.textContent = "root@klang:~$ Aguardando comando...";
+    resultado.className = "";
+}
+
+</script>
+
+</body>
+</html>
