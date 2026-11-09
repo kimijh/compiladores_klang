@@ -659,7 +659,8 @@ sincronizarInstrucao();
     // IF
     // =========================================================
 
-    private void instrucaoIf() {
+    
+private void instrucaoIf() {
 
     expr();
 
@@ -668,56 +669,12 @@ sincronizarInstrucao();
             "esperado 'THEN' após condição."
     );
 
-    // Instrução do THEN
-    if (verificarKeyword(Keyword.BEGIN)) {
+    inst();
 
-        consumirKeyword(
-                Keyword.BEGIN,
-                "esperado 'BEGIN'."
-        );
-
-        instrucoes();
-
-        consumirKeyword(
-                Keyword.END,
-                "esperado 'END'."
-        );
-
-        // O ; pertence ao bloco usado como instrução
-        aceitar(TokenType.PONTO_E_VIRGULA);
-
-    } else {
-
+    if (aceitarKeyword(Keyword.ELSE)) {
         inst();
     }
-
-    // ELSE
-    if (aceitarKeyword(Keyword.ELSE)) {
-
-        if (verificarKeyword(Keyword.BEGIN)) {
-
-            consumirKeyword(
-                    Keyword.BEGIN,
-                    "esperado 'BEGIN'."
-            );
-
-            instrucoes();
-
-            consumirKeyword(
-                    Keyword.END,
-                    "esperado 'END'."
-            );
-
-            // ; depois do bloco do ELSE
-            aceitar(TokenType.PONTO_E_VIRGULA);
-
-        } else {
-
-            inst();
-        }
-    }
 }
-
 
 
 
